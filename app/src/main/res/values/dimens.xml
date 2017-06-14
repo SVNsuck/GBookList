@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="image_size">48dp</dimen>
+    <dimen name="zero">0dp</dimen>
+    <dimen name="linearLay_margin">16dp</dimen>
+    <dimen name="text_marginRight">36dp</dimen>
+    <dimen name="text_marginRight_less">8dp</dimen>
+    <dimen name="smallSize">12sp</dimen>
+    <dimen name="normalSize">16sp</dimen>
+</resources>
