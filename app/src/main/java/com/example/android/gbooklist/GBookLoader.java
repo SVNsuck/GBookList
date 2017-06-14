@@ -30,7 +30,6 @@ public class GBookLoader extends AsyncTaskLoader {
             return null;
         }
         List<GBook> gBooks = QueryUtils.fetchGBookListData(mUrl);
-        Log.i(TAG, "loadInBackground: gBooks.size :" + gBooks.size());
         return gBooks;
     }
 
