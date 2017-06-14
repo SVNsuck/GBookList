@@ -69,14 +69,14 @@ public class QueryUtils {
             JSONObject jsonObject = new JSONObject(gBookJSON);
             if(jsonObject != null){
                 JSONArray jsonArray = jsonObject.optJSONArray("items");
-                if(jsonArray.length()>0){
+                if(jsonArray != null&&jsonArray.length()>0){
                     for(int i =0;i<jsonArray.length();i++){
                         JSONObject gBook = (JSONObject) jsonArray.get(i);
                         JSONObject volumeInfo = gBook.optJSONObject("volumeInfo");
                         String title = volumeInfo.optString("title");
                         JSONArray authorsArr = volumeInfo.optJSONArray("authors");
                         StringBuilder authors = new StringBuilder();
-                        if(authorsArr.length()>0){
+                        if(authorsArr !=null && authorsArr.length()>0){
                             for(int j = 0;j<authorsArr.length();j++){
                                 authors.append(authorsArr.get(j));
                                 if(j!=authorsArr.length()-1){
@@ -84,7 +84,7 @@ public class QueryUtils {
                                 }
                             }
                         }
-                        String publishDate = volumeInfo.optString("authorsArr.get(i)");
+                        String publishDate = volumeInfo.optString("publishedDate");
                         String imageUrl = volumeInfo.optJSONObject("imageLinks").optString("smallThumbnail");
                         String bookItemShowUrl = volumeInfo.optString("canonicalVolumeLink");
                         GBook gBookEntity = new GBook(title,authors.toString(),publishDate,imageUrl,bookItemShowUrl);

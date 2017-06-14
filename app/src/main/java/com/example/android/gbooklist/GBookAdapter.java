@@ -1,122 +1,151 @@
 package com.example.android.gbooklist;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
-import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.Loader;
-import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.widget.AbsListView;
+import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.List;
 
 /**
  * Created by PWT on 2017/6/13.
  */
 
-public class GBookAdapter extends ArrayAdapter<GBook> {
+public class GBookAdapter extends BaseAdapter implements AbsListView.OnScrollListener{
 
     private static final String TAG = "GBookAdapter";
 
+    private List<GBook> mList;
+    private LayoutInflater mInflater;
+    private ListView mListView;
     private View listItemView;
+    private ImageLoader imageLoader;
 
-    private int count = 1;
+    private int mStart;
+    private int mEnd;
+    private boolean isFirstIn;
 
-    public GBookAdapter(@NonNull Context context, @NonNull List<GBook> gBooks) {
-        super(context, 0, gBooks);
+    public GBookAdapter(@NonNull Context context, @NonNull List<GBook> data, ListView listView) {
+        mList = data;
+        mInflater = LayoutInflater.from(context);
+        mListView = listView;
+        isFirstIn = true;
+
+        imageLoader = new ImageLoader(mListView);
+        imageLoader.mUrls = new String[mList.size()];
+        for(int i=0;i<mList.size();i++){
+            imageLoader.mUrls[i] = mList.get(i).getBookImageUrl();
+        }
+        mListView.setOnScrollListener(this);
+    }
+
+    @Override
+    public int getCount() {
+        return mList.size();
+    }
+
+    @Override
+    public Object getItem(int position) {
+        return mList.get(position);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
     }
 
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         listItemView = convertView;
-
+        ViewHolder viewHolder;
         if(listItemView == null){
-            listItemView = LayoutInflater.from(getContext()).inflate(R.layout.gbook_list_item,parent,false);
+            viewHolder = new ViewHolder();
+            listItemView = mInflater.inflate(R.layout.gbook_list_item,parent,false);
+            viewHolder.imageView = (ImageView) listItemView.findViewById(R.id.book_img);
+            viewHolder.titleTextView = (TextView) listItemView.findViewById(R.id.book_title);
+            viewHolder.authorsTextView = (TextView) listItemView.findViewById(R.id.book_authors);
+            viewHolder.publishDateTextView = (TextView) listItemView.findViewById(R.id.book_publishDate);
+            listItemView.setTag(viewHolder);
+        }else{
+            viewHolder = (ViewHolder) listItemView.getTag();
         }
 
-        GBook gBook = getItem(position);
+        GBook gBook = (GBook) getItem(position);
 
         //设置标题
-        TextView titleTextView = (TextView)listItemView.findViewById(R.id.book_title);
-        titleTextView.setText(gBook.getTitle());
+        viewHolder.titleTextView.setText(gBook.getTitle());
 
         //设置作者
-        TextView authorsTextView = (TextView)listItemView.findViewById(R.id.book_authors);
-        authorsTextView.setText(gBook.getAuthors());
+        viewHolder.authorsTextView.setText(gBook.getAuthors());
 
         //设置出版日期
-        TextView publishDateTextView = (TextView)listItemView.findViewById(R.id.book_publishDate);
-        publishDateTextView.setText(gBook.getPublishDate());
+        viewHolder.publishDateTextView.setText(gBook.getPublishDate());
+
+
+        //设置默认图片
+        viewHolder.imageView.setImageResource(R.drawable.default_img_ic);
+
+        //给当前的ImageView设置Tag
+        viewHolder.imageView.setTag(gBook.getBookImageUrl());
 
         //启动线程
-        ImageAsyncTask imageAsyncTask = new ImageAsyncTask();
-        imageAsyncTask.execute(gBook.getBookImageUrl());
-        Log.i(TAG, "getView: count :" + count++);
+        imageLoader.showImage(viewHolder.imageView,gBook.getBookImageUrl());
         return listItemView;
     }
 
-    private class ImageAsyncTask extends AsyncTask<String,Void,Bitmap>{
-        @Override
-        protected void onPostExecute(Bitmap bitmap) {
-            //设置图片路径
-            ImageView imageView = (ImageView)listItemView.findViewById(R.id.book_img);
-            imageView.setImageBitmap(bitmap);
-        }
-
-        @Override
-        protected Bitmap doInBackground(String... imageUrls) {
-            Bitmap bitmap = null;
-            if(TextUtils.isEmpty(imageUrls[0])){
-                return null;
-            }
-            try {
-                bitmap =getImageBitmap(imageUrls[0]);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return bitmap;
+    /**
+     * 当列表滑动时不加载图片,停止滑动时加载图片
+     * @param view
+     * @param scrollState
+     */
+    @Override
+    public void onScrollStateChanged(AbsListView view, int scrollState) {
+        if(scrollState==SCROLL_STATE_IDLE){//滑动停止
+            imageLoader.loadImages(mStart,mEnd);
+        }else{//正在滑动
+            imageLoader.cancelAllAsyncTask();
         }
     }
 
-    private Bitmap getImageBitmap(String url) throws IOException {
-        Bitmap bm = null;
-        BufferedInputStream bis = null;
-        InputStream is = null;
-        try {
-            URL aURL = new URL(url);
-            URLConnection conn = aURL.openConnection();
-            conn.connect();
-            is = conn.getInputStream();
-            bis = new BufferedInputStream(is);
-            bm = BitmapFactory.decodeStream(bis);
-        } catch (IOException e) {
-            Log.e(TAG, "Error getting bitmap", e);
-        }finally {
-            if(bis !=null){
-                bis.close();
-            }
-            if(is != null){
-                is.close();
-            }
+    @Override
+    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+        /**
+         * 当前列表的开始项
+         */
+        mStart=firstVisibleItem;
+        /**
+         * 当前列表的结束项
+         */
+        mEnd=firstVisibleItem+visibleItemCount;
+
+        /**
+         * 由于listView初始化时会调用onScroll方法,故将首次图片异步加载放在这里
+         */
+        if(isFirstIn&&visibleItemCount>0){
+            imageLoader.loadImages(mStart,mEnd);
+            isFirstIn=false;
         }
-        return bm;
     }
+
+    private class ViewHolder {
+
+        public TextView titleTextView;
+
+        public TextView authorsTextView;
+
+        public TextView publishDateTextView;
+
+        public ImageView imageView;
+
+    }
+
 
 }

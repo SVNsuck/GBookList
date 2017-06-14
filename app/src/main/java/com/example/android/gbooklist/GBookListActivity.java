@@ -27,6 +27,8 @@ public class GBookListActivity extends AppCompatActivity implements LoaderManage
 
     private GBookAdapter mGBookAdapter;
 
+    private ListView gBookListView;
+
     /**
      * 列表为空时显示的 TextView
      */
@@ -47,13 +49,9 @@ public class GBookListActivity extends AppCompatActivity implements LoaderManage
         super.onCreate(savedInstanceState);
         setContentView(R.layout.gbook_list_activity);
 
-        ListView gBookListView = (ListView) findViewById(R.id.list);
+        gBookListView = (ListView) findViewById(R.id.list);
 
-        //初始化Adapter
-        mGBookAdapter = new GBookAdapter(GBookListActivity.this, new ArrayList<GBook>());
 
-        //设置adapter
-        gBookListView.setAdapter(mGBookAdapter);
 
         //设置ListView内容为空时显示的layout
         mEmptyStateTextView = (TextView) findViewById(R.id.empty_view);
@@ -64,7 +62,7 @@ public class GBookListActivity extends AppCompatActivity implements LoaderManage
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 // 查找单击的当前地震
-                GBook currentGBook = mGBookAdapter.getItem(position);
+                GBook currentGBook = (GBook)mGBookAdapter.getItem(position);
 
                 // 将字符串 URL 转换为 URI 对象（以传递至 Intent 中 constructor)
                 Uri earthquakeUri = Uri.parse(currentGBook.getBookItemShowUrl());
@@ -84,6 +82,8 @@ public class GBookListActivity extends AppCompatActivity implements LoaderManage
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //将空页面的文字清空
+                mEmptyStateTextView.setText("");
                 //如果无网络连接,则显示空页面
                 ConnectivityManager cm =
                         (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -95,21 +95,24 @@ public class GBookListActivity extends AppCompatActivity implements LoaderManage
                         activeNetwork.isConnectedOrConnecting();
                 if (isConnected) {
                     EditText editText = (EditText) findViewById(R.id.input_text);
+                    //取得用户输入的关键字
                     String text = editText.getText().toString();
-
-                    mGBookAdapter.clear();
 
                     //隐藏listview
                     ListView listView =(ListView)findViewById(R.id.list);
                     listView.setVisibility(View.GONE);
                     //显示加载圈圈
                     bar.setVisibility(View.VISIBLE);
+                    //设置要进行搜索的url
                     if (TextUtils.isEmpty(text)) {
-                        gBookRequestUrl.append(BASE_REQ_URL).append("&maxResults=10");
+                        gBookRequestUrl.append(BASE_REQ_URL).append("&maxResults=30");
                     } else {
-                        gBookRequestUrl.append(BASE_REQ_URL).append("?q=" + text).append("&maxResults=10");
+                        gBookRequestUrl.append(BASE_REQ_URL).append("?q=" + text).append("&maxResults=30");
                     }
 
+                    //每次点击都先将Loader销毁,不然这该死onCreateLoader方法只会在Loader初始化的时候调用一次,
+                    // 导致更新后的url传不到GBookLoader实例中,使得后面的搜索都不起作用了
+                    getSupportLoaderManager().destroyLoader(GBOOKLIST_LOADER_ID);
                     //启动线程
                     getSupportLoaderManager().initLoader(GBOOKLIST_LOADER_ID, null, GBookListActivity.this);
                 } else {
@@ -137,20 +140,25 @@ public class GBookListActivity extends AppCompatActivity implements LoaderManage
         ListView listView =(ListView)findViewById(R.id.list);
         listView.setVisibility(View.VISIBLE);
 
-        // 清除之前地震数据的适配器
-        mGBookAdapter.clear();
+        //初始化Adapter
+        mGBookAdapter = new GBookAdapter(GBookListActivity.this, data, gBookListView);
 
-        // 如果存在 {@link Earthquake} 的有效列表，则将其添加到适配器的
-        // 数据集。这将触发 ListView 执行更新。
-        if (data != null && !data.isEmpty()) {
-            mGBookAdapter.addAll(data);
-        }
+        //设置adapter
+        gBookListView.setAdapter(mGBookAdapter);
+
+//        // 清除之前地震数据的适配器
+//        mGBookAdapter.clear();
+//
+//        // 如果存在 {@link Earthquake} 的有效列表，则将其添加到适配器的
+//        // 数据集。这将触发 ListView 执行更新。
+//        if (data != null && !data.isEmpty()) {
+//            mGBookAdapter.addAll(data);
+//        }
 
         gBookRequestUrl.setLength(0);
     }
 
     @Override
     public void onLoaderReset(Loader<List<GBook>> loader) {
-        mGBookAdapter.clear();
     }
 }
