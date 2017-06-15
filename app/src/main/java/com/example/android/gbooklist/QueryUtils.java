@@ -68,13 +68,13 @@ public class QueryUtils {
 
             JSONObject jsonObject = new JSONObject(gBookJSON);
             if(jsonObject != null){
-                JSONArray jsonArray = jsonObject.optJSONArray("items");
+                JSONArray jsonArray = jsonObject.optJSONArray(Constant.jsonKey.ITEMS);
                 if(jsonArray != null&&jsonArray.length()>0){
                     for(int i =0;i<jsonArray.length();i++){
                         JSONObject gBook = (JSONObject) jsonArray.get(i);
-                        JSONObject volumeInfo = gBook.optJSONObject("volumeInfo");
-                        String title = volumeInfo.optString("title");
-                        JSONArray authorsArr = volumeInfo.optJSONArray("authors");
+                        JSONObject volumeInfo = gBook.optJSONObject(Constant.jsonKey.VOLUME_INFO);
+                        String title = volumeInfo.optString(Constant.jsonKey.BOOK_TITLE);
+                        JSONArray authorsArr = volumeInfo.optJSONArray(Constant.jsonKey.BOOK_AUTHORS);
                         StringBuilder authors = new StringBuilder();
                         if(authorsArr !=null && authorsArr.length()>0){
                             for(int j = 0;j<authorsArr.length();j++){
@@ -84,9 +84,12 @@ public class QueryUtils {
                                 }
                             }
                         }
-                        String publishDate = volumeInfo.optString("publishedDate");
-                        String imageUrl = volumeInfo.optJSONObject("imageLinks").optString("smallThumbnail");
-                        String bookItemShowUrl = volumeInfo.optString("canonicalVolumeLink");
+                        String publishDate = volumeInfo.optString(Constant.jsonKey.BOOK_PUBLISH_DATE);
+                        String imageUrl ="";
+                        if (volumeInfo.has(Constant.jsonKey.IMAGE_LINKS)){
+                            imageUrl = volumeInfo.optJSONObject(Constant.jsonKey.IMAGE_LINKS).optString(Constant.jsonKey.SMALL_THUMBNAIL);
+                        }
+                                 String bookItemShowUrl = volumeInfo.optString(Constant.jsonKey.CANONICAL_VOLUME_LINK);
                         GBook gBookEntity = new GBook(title,authors.toString(),publishDate,imageUrl,bookItemShowUrl);
                         gBooks.add(gBookEntity);
                     }

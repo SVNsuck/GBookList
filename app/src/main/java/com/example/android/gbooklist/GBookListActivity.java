@@ -18,6 +18,8 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -104,10 +106,14 @@ public class GBookListActivity extends AppCompatActivity implements LoaderManage
                     //显示加载圈圈
                     bar.setVisibility(View.VISIBLE);
                     //设置要进行搜索的url
-                    if (TextUtils.isEmpty(text)) {
-                        gBookRequestUrl.append(BASE_REQ_URL).append("&maxResults=30");
-                    } else {
-                        gBookRequestUrl.append(BASE_REQ_URL).append("?q=" + text).append("&maxResults=30");
+                    try {
+                        if (TextUtils.isEmpty(text)) {
+                            gBookRequestUrl.append(BASE_REQ_URL).append("&maxResults=30");
+                        } else {
+                            gBookRequestUrl.append(BASE_REQ_URL).append("?q=" + URLEncoder.encode(text,"UTF-8")).append("&maxResults=30");
+                        }
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
                     }
 
                     //每次点击都先将Loader销毁,不然这该死onCreateLoader方法只会在Loader初始化的时候调用一次,
@@ -145,15 +151,6 @@ public class GBookListActivity extends AppCompatActivity implements LoaderManage
 
         //设置adapter
         gBookListView.setAdapter(mGBookAdapter);
-
-//        // 清除之前地震数据的适配器
-//        mGBookAdapter.clear();
-//
-//        // 如果存在 {@link Earthquake} 的有效列表，则将其添加到适配器的
-//        // 数据集。这将触发 ListView 执行更新。
-//        if (data != null && !data.isEmpty()) {
-//            mGBookAdapter.addAll(data);
-//        }
 
         gBookRequestUrl.setLength(0);
     }

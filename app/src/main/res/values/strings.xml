@@ -3,4 +3,7 @@
     <!-- Text to display in the list when there are no earthquakes [CHAR LIMIT=NONE] -->
     <string name="no_earthquakes">No Fucking book found.</string>
     <string name="no_network">No Fucking Network was Connected.</string>
+    <string name="authors_text">作者:</string>
+    <string name="publishDate_text">出版日期:</string>
+    <string name="bookName_text">书名:</string>
 </resources>
