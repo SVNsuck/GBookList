@@ -90,7 +90,12 @@ public class QueryUtils {
                             imageUrl = volumeInfo.optJSONObject(Constant.jsonKey.IMAGE_LINKS).optString(Constant.jsonKey.SMALL_THUMBNAIL);
                         }
                                  String bookItemShowUrl = volumeInfo.optString(Constant.jsonKey.CANONICAL_VOLUME_LINK);
-                        GBook gBookEntity = new GBook(title,authors.toString(),publishDate,imageUrl,bookItemShowUrl);
+                        GBook gBookEntity = new GBook();
+                        gBookEntity.title.set(title);
+                        gBookEntity.authors.set(authors.toString());
+                        gBookEntity.publishDate.set(publishDate);
+                        gBookEntity.setBookImageUrl(imageUrl);
+                        gBookEntity.setBookItemShowUrl(bookItemShowUrl);
                         gBooks.add(gBookEntity);
                     }
                 }

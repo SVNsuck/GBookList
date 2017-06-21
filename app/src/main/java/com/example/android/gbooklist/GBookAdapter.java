@@ -1,16 +1,20 @@
 package com.example.android.gbooklist;
 
 import android.content.Context;
+import android.databinding.DataBindingUtil;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
+import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import com.example.android.gbooklist.databinding.GbookListItemBinding;
 
 import java.util.List;
 
@@ -18,7 +22,7 @@ import java.util.List;
  * Created by PWT on 2017/6/13.
  */
 
-public class GBookAdapter extends BaseAdapter implements AbsListView.OnScrollListener{
+public class GBookAdapter extends ArrayAdapter<GBook> implements AbsListView.OnScrollListener{
 
     private static final String TAG = "GBookAdapter";
 
@@ -33,6 +37,8 @@ public class GBookAdapter extends BaseAdapter implements AbsListView.OnScrollLis
     private boolean isFirstIn;
 
     public GBookAdapter(@NonNull Context context, @NonNull List<GBook> data, ListView listView) {
+        //调用 ArrayAdapter 的构造器，因为 GBookAdapter 继承 ArrayAdapter，使用 super 代表 ArrayAdapter
+        super(context, 0, data);
         mList = data;
         mInflater = LayoutInflater.from(context);
         mListView = listView;
@@ -52,11 +58,6 @@ public class GBookAdapter extends BaseAdapter implements AbsListView.OnScrollLis
     }
 
     @Override
-    public Object getItem(int position) {
-        return mList.get(position);
-    }
-
-    @Override
     public long getItemId(int position) {
         return position;
     }
@@ -64,41 +65,30 @@ public class GBookAdapter extends BaseAdapter implements AbsListView.OnScrollLis
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+        GbookListItemBinding listItemBinding;
         listItemView = convertView;
-        ViewHolder viewHolder;
+        //ViewHolder viewHolder;
         if(listItemView == null){
-            viewHolder = new ViewHolder();
-            listItemView = mInflater.inflate(R.layout.gbook_list_item,parent,false);
-            viewHolder.imageView = (ImageView) listItemView.findViewById(R.id.book_img);
-            viewHolder.titleTextView = (TextView) listItemView.findViewById(R.id.book_title);
-            viewHolder.authorsTextView = (TextView) listItemView.findViewById(R.id.book_authors);
-            viewHolder.publishDateTextView = (TextView) listItemView.findViewById(R.id.book_publishDate);
-            listItemView.setTag(viewHolder);
+            listItemBinding = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()),R.layout.gbook_list_item,parent,false);
+
         }else{
-            viewHolder = (ViewHolder) listItemView.getTag();
+            listItemBinding = DataBindingUtil.getBinding(listItemView);
         }
 
-        GBook gBook = (GBook) getItem(position);
+        GBook gBook = getItem(position);
 
-        //设置标题
-        viewHolder.titleTextView.setText(gBook.getTitle());
-
-        //设置作者
-        viewHolder.authorsTextView.setText(gBook.getAuthors());
-
-        //设置出版日期
-        viewHolder.publishDateTextView.setText(gBook.getPublishDate());
+        listItemBinding.setGBook(gBook);
 
 
         //设置默认图片
-        viewHolder.imageView.setImageResource(R.drawable.default_img_ic);
+        listItemBinding.bookImg.setImageResource(R.drawable.default_img_ic);
 
         //给当前的ImageView设置Tag
-        viewHolder.imageView.setTag(gBook.getBookImageUrl());
+        listItemBinding.bookImg.setTag(gBook.getBookImageUrl());
 
         //启动线程
-        imageLoader.showImage(viewHolder.imageView,gBook.getBookImageUrl());
-        return listItemView;
+        imageLoader.showImage(listItemBinding.bookImg,gBook.getBookImageUrl());
+        return listItemBinding.getRoot();
     }
 
     /**
@@ -134,18 +124,5 @@ public class GBookAdapter extends BaseAdapter implements AbsListView.OnScrollLis
             isFirstIn=false;
         }
     }
-
-    private class ViewHolder {
-
-        public TextView titleTextView;
-
-        public TextView authorsTextView;
-
-        public TextView publishDateTextView;
-
-        public ImageView imageView;
-
-    }
-
 
 }

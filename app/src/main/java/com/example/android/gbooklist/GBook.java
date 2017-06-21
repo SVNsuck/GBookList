@@ -1,5 +1,7 @@
 package com.example.android.gbooklist;
 
+import android.databinding.ObservableField;
+
 /**
  * Created by PWT on 2017/6/13.
  */
@@ -7,14 +9,14 @@ package com.example.android.gbooklist;
 public class GBook {
 
     //书名
-    private String title;
+    public final ObservableField<String> title = new ObservableField<>();
 
     //作者
-    private String authors;
+    public final ObservableField<String> authors = new ObservableField<>();
 
     //出版日期
 
-    private String publishDate;
+    public final ObservableField<String> publishDate = new ObservableField<>();
 
     //书本图片网址
     private String bookImageUrl;
@@ -22,31 +24,19 @@ public class GBook {
     //书本对应的GooglePlay的展示页面网址
     private String bookItemShowUrl;
 
-    public GBook(String title, String authors, String publishDate, String bookImageUrl, String bookItemShowUrl) {
-        this.title = title;
-        this.authors = authors;
-        this.publishDate = publishDate;
-        this.bookImageUrl = bookImageUrl;
-        this.bookItemShowUrl = bookItemShowUrl;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public String getAuthors() {
-        return authors;
-    }
-
-    public String getPublishDate() {
-        return publishDate;
-    }
-
     public String getBookImageUrl() {
         return bookImageUrl;
     }
 
+    public void setBookImageUrl(String bookImageUrl) {
+        this.bookImageUrl = bookImageUrl;
+    }
+
     public String getBookItemShowUrl() {
         return bookItemShowUrl;
+    }
+
+    public void setBookItemShowUrl(String bookItemShowUrl) {
+        this.bookItemShowUrl = bookItemShowUrl;
     }
 }

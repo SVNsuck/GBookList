@@ -13,58 +13,69 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="adapter"
+            type="android.widget.ArrayAdapter"/>
+    </data>
+
     <LinearLayout
-        android:id="@+id/first_lay"
+
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="8dp">
-        <EditText
-            android:id="@+id/input_text"
-            android:layout_width="0dp"
-            android:layout_weight="8"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <LinearLayout
+            android:id="@+id/first_lay"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"/>
-        <Button
-            android:id="@+id/search_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="搜索"/>
+            android:orientation="horizontal"
+            android:padding="8dp">
+            <EditText
+                android:id="@+id/input_text"
+                android:layout_width="0dp"
+                android:layout_weight="8"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"/>
+            <Button
+                android:id="@+id/search_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="搜索"/>
+
+        </LinearLayout>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <!-- Layout for a list of earthquakes -->
+            <ListView
+                android:id="@+id/list"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:divider="@color/colorPrimary"
+                android:dividerHeight="1dp"
+                app:adapter="@{adapter}"
+                />
+
+            <TextView
+                android:id="@+id/empty_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:textAppearance="?android:textAppearanceMedium"/>
+
+            <ProgressBar
+                android:id="@+id/pro_bar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:visibility="gone"/>
+
+        </RelativeLayout>
 
     </LinearLayout>
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <!-- Layout for a list of earthquakes -->
-        <ListView xmlns:android="http://schemas.android.com/apk/res/android"
-            android:id="@+id/list"
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:divider="@color/colorPrimary"
-            android:dividerHeight="1dp"/>
-
-        <TextView
-            android:id="@+id/empty_view"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:textAppearance="?android:textAppearanceMedium"/>
-
-        <ProgressBar
-            android:id="@+id/pro_bar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:visibility="gone"/>
-
-    </RelativeLayout>
-
-</LinearLayout>
-
+</layout>

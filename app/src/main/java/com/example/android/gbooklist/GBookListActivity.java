@@ -2,6 +2,7 @@ package com.example.android.gbooklist;
 
 import android.content.Context;
 import android.content.Intent;
+import android.databinding.DataBindingUtil;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -17,6 +18,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import com.example.android.gbooklist.databinding.GbookListActivityBinding;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -46,17 +49,22 @@ public class GBookListActivity extends AppCompatActivity implements LoaderManage
 
     private StringBuffer gBookRequestUrl = new StringBuffer();
 
+    GbookListActivityBinding binding;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.gbook_list_activity);
 
-        gBookListView = (ListView) findViewById(R.id.list);
+        /**
+         * 通过databinding得到自动生成的绑定类
+         */
+        binding = DataBindingUtil.setContentView(this,R.layout.gbook_list_activity);
 
-
+        gBookListView =  binding.list;
 
         //设置ListView内容为空时显示的layout
-        mEmptyStateTextView = (TextView) findViewById(R.id.empty_view);
+        mEmptyStateTextView = binding.emptyView;
         gBookListView.setEmptyView(mEmptyStateTextView);
 
 
@@ -80,7 +88,7 @@ public class GBookListActivity extends AppCompatActivity implements LoaderManage
         /**
          * 搜索按钮的点击事件
          */
-        Button searchButton = (Button) findViewById(R.id.search_button);
+        Button searchButton = binding.searchButton;
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -90,19 +98,18 @@ public class GBookListActivity extends AppCompatActivity implements LoaderManage
                 ConnectivityManager cm =
                         (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
                 //得到加载圈圈实体
-                View bar = findViewById(R.id.pro_bar);
+                View bar = binding.proBar;
 
                 NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
                 boolean isConnected = activeNetwork != null &&
                         activeNetwork.isConnectedOrConnecting();
                 if (isConnected) {
-                    EditText editText = (EditText) findViewById(R.id.input_text);
+                    EditText editText = binding.inputText;
                     //取得用户输入的关键字
                     String text = editText.getText().toString();
 
                     //隐藏listview
-                    ListView listView =(ListView)findViewById(R.id.list);
-                    listView.setVisibility(View.GONE);
+                    gBookListView.setVisibility(View.GONE);
                     //显示加载圈圈
                     bar.setVisibility(View.VISIBLE);
                     //设置要进行搜索的url
@@ -139,18 +146,18 @@ public class GBookListActivity extends AppCompatActivity implements LoaderManage
         mEmptyStateTextView.setText(R.string.no_earthquakes);
 
         //隐藏加载圈圈
-        View bar = findViewById(R.id.pro_bar);
+        View bar = binding.proBar;
         bar.setVisibility(View.GONE);
 
         //显示listview
-        ListView listView =(ListView)findViewById(R.id.list);
-        listView.setVisibility(View.VISIBLE);
+        gBookListView.setVisibility(View.VISIBLE);
 
         //初始化Adapter
         mGBookAdapter = new GBookAdapter(GBookListActivity.this, data, gBookListView);
 
         //设置adapter
-        gBookListView.setAdapter(mGBookAdapter);
+        binding.setAdapter(mGBookAdapter);
+        //gBookListView.setAdapter(mGBookAdapter);
 
         gBookRequestUrl.setLength(0);
     }
