@@ -11,7 +11,6 @@ import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -23,7 +22,6 @@ import com.example.android.gbooklist.databinding.GbookListActivityBinding;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.List;
 
 public class GBookListActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<GBook>> {
@@ -72,7 +70,7 @@ public class GBookListActivity extends AppCompatActivity implements LoaderManage
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 // 查找单击的当前地震
-                GBook currentGBook = (GBook)mGBookAdapter.getItem(position);
+                GBook currentGBook = mGBookAdapter.getItem(position);
 
                 // 将字符串 URL 转换为 URI 对象（以传递至 Intent 中 constructor)
                 Uri earthquakeUri = Uri.parse(currentGBook.getBookItemShowUrl());
